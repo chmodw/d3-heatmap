@@ -44,12 +44,9 @@ body {
     height: 100vh;
 }
 
-.container {
-    padding: 20px;
+#chart-container {
     background: #f4f4f4;
     margin: auto;
-    border: 3px solid #024602;
-    padding: 10px;
     text-align: center;
     position: relative;
 }
