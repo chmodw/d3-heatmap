@@ -1,6 +1,6 @@
-const margin = { top: 50, right: 50, bottom: 50, left: 30 };
-const width = 960 - margin.left - margin.right - 80;
-const height = 600 - margin.top - margin.bottom;
+const margin = { top: 50, right: 20, bottom: 50, left: 80 };
+const width = 1000 - margin.left - margin.right;
+const height = 500 - margin.top - margin.bottom;
 
 const monthNames = [
   "January",
@@ -20,8 +20,9 @@ const monthNames = [
 const chart = d3
   .select("#chart-container")
   .append("svg")
-  .attr("width", width + margin.left + margin.right + 80)
+  .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom)
+  .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 d3.json(
@@ -32,16 +33,12 @@ d3.json(
     const months = d3.map(data.monthlyVariance, (d) => d.month);
 
     // adding x and y axis
-    let xAxis = d3
-      .scaleBand()
-      .rangeRound([0, width])
-      .paddingInner(0.05)
-      .domain(years);
+    let xAxis = d3.scaleBand().range([0, width]).domain(years);
 
     chart
       .append("g")
       .style("font-size", 12)
-      .attr("transform", "translate(80," + height + ")")
+      .attr("transform", "translate(0," + height + ")")
       .call(
         d3
           .axisBottom(xAxis)
@@ -53,9 +50,28 @@ d3.json(
     chart
       .append("g")
       .style("font-size", 12)
-      .attr("transform", "translate(80,0)")
       .call(d3.axisLeft(yAxis).tickFormat((d) => monthNames[d - 1]))
       .attr("id", "y-axis");
+
+    var colors = d3
+      .scaleSequential()
+      .interpolator(d3.interpolateInferno)
+      .domain([
+        d3.min(data.monthlyVariance.map((d) => d.variance)),
+        d3.max(data.monthlyVariance.map((d) => d.variance)),
+      ]);
+
+    // add the squares
+    chart
+      .selectAll()
+      .data(data.monthlyVariance, (d) => d.year + ":" + d.month)
+      .enter()
+      .append("rect")
+      .attr("x", (d) => xAxis(d.year))
+      .attr("y", (d) => yAxis(d.month))
+      .attr("width", xAxis.bandwidth())
+      .attr("height", yAxis.bandwidth())
+      .style("fill", (d) => colors(d.variance));
   })
   .catch((error) => {
     if (error) throw error;
