@@ -31,21 +31,30 @@ d3.json(
     const years = d3.map(data.monthlyVariance, (d) => d.year);
     const months = d3.map(data.monthlyVariance, (d) => d.month);
 
-    // Build X scales and axis:
-    let xAxis = d3.scaleBand().range([0, width]).domain(years);
+    // adding x and y axis
+    let xAxis = d3
+      .scaleBand()
+      .rangeRound([0, width])
+      .paddingInner(0.05)
+      .domain(years);
+
     chart
       .append("g")
-      .style("font-size", 14)
+      .style("font-size", 12)
       .attr("transform", "translate(80," + height + ")")
-      .call(d3.axisBottom(xAxis))
+      .call(
+        d3
+          .axisBottom(xAxis)
+          .tickValues(xAxis.domain().filter((d) => d % 10 === 0))
+      )
       .attr("id", "x-axis");
 
     let yAxis = d3.scaleBand().range([height, 0]).domain(months);
     chart
       .append("g")
-      .style("font-size", 14)
+      .style("font-size", 12)
       .attr("transform", "translate(80,0)")
-      .call(d3.axisLeft(yAxis).tickFormat((d, i) => monthNames[i]))
+      .call(d3.axisLeft(yAxis).tickFormat((d) => monthNames[d - 1]))
       .attr("id", "y-axis");
   })
   .catch((error) => {
