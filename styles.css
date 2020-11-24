@@ -58,6 +58,10 @@ body {
 
 #tooltip{
     position: absolute;
+    opacity: 0;
+    background: #ffffca;
+    min-width: 100px;
+    text-align: center;
 }
 
 .cell:hover{

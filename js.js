@@ -78,12 +78,24 @@ d3.json(
       .style("fill", (d) => colors(data.baseTemperature + d.variance))
       .on("mouseover", (e, d) => {
         // d3.select(this).style("stroke", "black");
+        d3.select("#tooltip")
+          .style("opacity", 1)
+          .style("top", yAxis(d.month) + 75 + "px")
+          .style("left", xAxis(d.year) + 50 + "px");
+
         d3.select("#tooltip-year").text(d.year);
         d3.select("#tooltip-month").text(d.month);
-        d3.select("#tooltip-temp").text(data.baseTemperature + d.variance);
-        d3.select("#tooltip-variance").text(d.variance);
+        d3.select("#tooltip-temp").text(
+          Number(Math.round(data.baseTemperature + d.variance + "e1") + "e-1")
+        );
+        d3.select("#tooltip-variance").text(
+          Number(Math.round(d.variance + "e1") + "e-1")
+        );
 
         ////// round the numbers to the closest number 2.7456 to 2.8 show in the tooltip
+      })
+      .on("mouseleave", (e, d) => {
+        d3.select("#tooltip").style("opacity", 0);
       });
 
     // adding the years and base temp to the title
