@@ -1,5 +1,5 @@
 const margin = { top: 50, right: 70, bottom: 50, left: 80 };
-const width = 1200 - margin.left - margin.right;
+const width = 1800 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 
 const monthNames = [
@@ -67,12 +67,29 @@ d3.json(
       .data(data.monthlyVariance, (d) => d.year + ":" + d.month)
       .enter()
       .append("rect")
+      .attr("data-month", (d) => d.month)
+      .attr("data-year", (d) => d.month)
+      .attr("data-temp", (d) => data.baseTemperature + d.variance)
       .attr("class", "cell")
       .attr("x", (d) => xAxis(d.year))
       .attr("y", (d) => yAxis(d.month))
       .attr("width", xAxis.bandwidth())
       .attr("height", yAxis.bandwidth())
-      .style("fill", (d) => colors(data.baseTemperature + d.variance));
+      .style("fill", (d) => colors(data.baseTemperature + d.variance))
+      .on("mouseover", (e, d) => {
+        // d3.select(this).style("stroke", "black");
+        d3.select("#tooltip-year").text(d.year);
+        d3.select("#tooltip-month").text(d.month);
+        d3.select("#tooltip-temp").text(data.baseTemperature + d.variance);
+        d3.select("#tooltip-variance").text(d.variance);
+
+        ////// round the numbers to the closest number 2.7456 to 2.8 show in the tooltip
+      });
+
+    // adding the years and base temp to the title
+    d3.select("#start-year").text(d3.min(years));
+    d3.select("#end-year").text(d3.max(years));
+    d3.select("#base-temp").text(data.baseTemperature);
   })
   .catch((error) => {
     if (error) throw error;

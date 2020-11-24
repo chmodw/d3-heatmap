@@ -7,8 +7,20 @@
     <link href="styles.css" rel="stylesheet" />
   </head>
   <body>
-    <div id="chart-container"></div>
-    <div id="test"></div>
+    <div id="chart-container">
+      <h1 id="title">Monthly Global Land-Surface Temperature</h1>
+      <h2 id="description">
+        <span id="start-year"></span> - <span id="end-year"></span>: base
+        temperature <span id="base-temp"></span>℃
+      </h2>
+      <div id="tooltip">
+        <p>
+          <span id="tooltip-year"></span> - <span id="tooltip-month"></span>
+        </p>
+        <p id="tooltip-temp"></p>
+        <p id="tooltip-variance"></p>
+      </div>
+    </div>
     <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
     <script src="js.js"></script>

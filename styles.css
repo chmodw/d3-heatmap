@@ -40,7 +40,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #333333;
+    background: #f4f4f4;
     height: 100vh;
 }
 
@@ -49,4 +49,19 @@ body {
     margin: auto;
     text-align: center;
     position: relative;
+    padding: 20px;
+}
+
+#title{
+    font-weight: 800;
+}
+
+#tooltip{
+    position: absolute;
+}
+
+.cell:hover{
+    cursor: pointer;
+    stroke: white;
+    stroke-width: 0.2%;
 }
