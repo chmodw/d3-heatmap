@@ -56,10 +56,10 @@ d3.json(
       .call(d3.axisLeft(yAxis).tickFormat((d) => monthNames[d - 1]))
       .attr("id", "y-axis");
 
-    var colors = d3
-      .scaleSequential()
-      .interpolator(d3.interpolateInferno)
-      .domain([d3.min(temps), d3.max(temps)]);
+    let colors = d3
+      .scaleQuantize()
+      .range(colorbrewer.RdYlBu[11].reverse())
+      .domain([0, 11]);
 
     // Adding the data to the chart
     chart
@@ -91,8 +91,6 @@ d3.json(
         d3.select("#tooltip-variance").text(
           Number(Math.round(d.variance + "e1") + "e-1")
         );
-
-        ////// round the numbers to the closest number 2.7456 to 2.8 show in the tooltip
       })
       .on("mouseleave", (e, d) => {
         d3.select("#tooltip").style("opacity", 0);
