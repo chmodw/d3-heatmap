@@ -56,11 +56,6 @@ d3.json(
       .call(d3.axisLeft(yAxis).tickFormat((d) => monthNames[d - 1]))
       .attr("id", "y-axis");
 
-    let colors = d3
-      .scaleQuantize()
-      .range(colorbrewer.RdYlBu[11].reverse())
-      .domain([0, 11]);
-
     // Adding the data to the chart
     chart
       .selectAll()
@@ -75,7 +70,7 @@ d3.json(
       .attr("y", (d) => yAxis(d.month))
       .attr("width", xAxis.bandwidth())
       .attr("height", yAxis.bandwidth())
-      .style("fill", (d) => colors(data.baseTemperature + d.variance))
+      .style("fill", (d) => colorSelect(data.baseTemperature + d.variance))
       .on("mouseover", (e, d) => {
         // d3.select(this).style("stroke", "black");
         d3.select("#tooltip")
@@ -104,3 +99,26 @@ d3.json(
   .catch((error) => {
     if (error) throw error;
   });
+
+function colorSelect(temp) {
+  let colors = [
+    "#4575b4",
+    "#74add1",
+    "#abd9e9",
+    "#e0f3f8",
+    "#ffffbf",
+    "#fee090",
+    "#fdae61",
+    "#f46d43",
+    "#d73027",
+  ];
+  if (temp < 3.9) return colors[0];
+  if (temp < 5.0) return colors[1];
+  if (temp < 6.1) return colors[2];
+  if (temp < 7.2) return colors[3];
+  if (temp < 8.3) return colors[4];
+  if (temp < 9.5) return colors[5];
+  if (temp < 10.6) return colors[6];
+  if (temp < 11.7) return colors[7];
+  if (temp > 11.7) return colors[8];
+}
