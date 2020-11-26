@@ -1,7 +1,7 @@
 const margin = { top: 50, right: 70, bottom: 50, left: 80 };
-const width = 980 - margin.left - margin.right;
+const width = 1000 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
-const legendHeight = 100;
+const legendHeight = 50;
 
 const monthNames = [
   "January",
@@ -83,7 +83,6 @@ d3.json(
       )
       .range(colorbrewer.RdYlBu[11].reverse());
 
-    // add 1.1 to the min until the max
     // Adding the data to the chart
     chart
       .selectAll()
@@ -100,7 +99,6 @@ d3.json(
       .attr("height", yAxis.bandwidth())
       .style("fill", (d) => colors(data.baseTemperature + d.variance))
       .on("mouseover", (e, d) => {
-        // d3.select(this).style("stroke", "black");
         d3.select("#tooltip")
           .style("opacity", 1)
           .style("top", yAxis(d.month) + 75 + "px")
@@ -119,47 +117,33 @@ d3.json(
         d3.select("#tooltip").style("opacity", 0);
       });
 
-    var legendX = d3.scaleLinear().domain([minTemp, maxTemp]).range([0, 250]);
+    const legendX = d3.scaleLinear().domain([minTemp, maxTemp]).range([0, 250]);
 
-    var legendXAxis = d3
+    const legendXAxis = d3
       .axisBottom()
       .scale(legendX)
-      .tickSize(10, 0)
+      .tickSize(25, 0)
       .tickValues(colors.domain())
       .tickFormat(d3.format(".1f"));
 
-    var legend = d3.select("#legend");
+    let legend = d3.select("#legend");
 
     legend
-      .append("g")
       .selectAll("rect")
       .data(
         colors.range().map(function (color) {
-          var d = colors.invertExtent(color);
-          if (d[0] === null) {
-            d[0] = legendX.domain()[0];
-          }
-          if (d[1] === null) {
-            d[1] = legendX.domain()[1];
-          }
+          let d = colors.invertExtent(color);
+          if (d[0] == null) d[0] = legendX.domain()[0];
+          if (d[1] == null) d[1] = legendX.domain()[1];
           return d;
         })
       )
       .enter()
-      .append("rect")
-      .style("fill", function (d) {
-        return colors(d[0]);
-      })
-      .attr({
-        x: function (d) {
-          return legendX(d[0]);
-        },
-        y: 0,
-        width: function (d) {
-          return legendX(d[1]) - legendX(d[0]);
-        },
-        height: legendHeight,
-      });
+      .insert("rect", ".tick")
+      .attr("height", 25)
+      .attr("x", (d) => legendX(d[0]))
+      .attr("width", (d) => legendX(d[1]) - legendX(d[0]))
+      .attr("fill", (d) => colors(d[0]));
 
     legend.append("g").call(legendXAxis);
   })
