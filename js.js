@@ -1,6 +1,7 @@
 const margin = { top: 50, right: 70, bottom: 50, left: 80 };
-const width = 1800 - margin.left - margin.right;
+const width = 980 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
+const legendHeight = 100;
 
 const monthNames = [
   "January",
@@ -21,7 +22,7 @@ const chart = d3
   .select("#chart-container")
   .append("svg")
   .attr("width", width + margin.left + margin.right)
-  .attr("height", height + margin.top + margin.bottom)
+  .attr("height", height + margin.top + margin.bottom + legendHeight)
   .append("g")
   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -31,9 +32,11 @@ d3.json(
   .then((data) => {
     const years = d3.map(data.monthlyVariance, (d) => d.year);
     const months = d3.map(data.monthlyVariance, (d) => d.month);
-    const temps = data.monthlyVariance.map(
-      (d) => data.baseTemperature + d.variance
-    );
+
+    // adding the years and base temp to the title
+    d3.select("#start-year").text(d3.min(years));
+    d3.select("#end-year").text(d3.max(years));
+    d3.select("#base-temp").text(data.baseTemperature);
 
     // adding x and y axis
     let xAxis = d3.scaleBand().range([0, width]).domain(years);
@@ -56,6 +59,31 @@ d3.json(
       .call(d3.axisLeft(yAxis).tickFormat((d) => monthNames[d - 1]))
       .attr("id", "y-axis");
 
+    // generating the color band
+    const minTemp = d3.min(
+      data.monthlyVariance.map((item) => data.baseTemperature + item.variance)
+    );
+
+    const maxTemp = d3.max(
+      data.monthlyVariance.map((item) => data.baseTemperature + item.variance)
+    );
+
+    const colors = d3
+      .scaleThreshold()
+      .domain(
+        ((min, max, count) => {
+          let array = [];
+          let step = (max - min) / count;
+          let base = min;
+          for (let i = 1; i < count; i++) {
+            array.push(base + i * step);
+          }
+          return array;
+        })(minTemp, maxTemp, colorbrewer.RdYlBu[11].length)
+      )
+      .range(colorbrewer.RdYlBu[11].reverse());
+
+    // add 1.1 to the min until the max
     // Adding the data to the chart
     chart
       .selectAll()
@@ -70,7 +98,7 @@ d3.json(
       .attr("y", (d) => yAxis(d.month))
       .attr("width", xAxis.bandwidth())
       .attr("height", yAxis.bandwidth())
-      .style("fill", (d) => colorSelect(data.baseTemperature + d.variance))
+      .style("fill", (d) => colors(data.baseTemperature + d.variance))
       .on("mouseover", (e, d) => {
         // d3.select(this).style("stroke", "black");
         d3.select("#tooltip")
@@ -91,34 +119,50 @@ d3.json(
         d3.select("#tooltip").style("opacity", 0);
       });
 
-    // adding the years and base temp to the title
-    d3.select("#start-year").text(d3.min(years));
-    d3.select("#end-year").text(d3.max(years));
-    d3.select("#base-temp").text(data.baseTemperature);
+    var legendX = d3.scaleLinear().domain([minTemp, maxTemp]).range([0, 250]);
+
+    var legendXAxis = d3
+      .axisBottom()
+      .scale(legendX)
+      .tickSize(10, 0)
+      .tickValues(colors.domain())
+      .tickFormat(d3.format(".1f"));
+
+    var legend = d3.select("#legend");
+
+    legend
+      .append("g")
+      .selectAll("rect")
+      .data(
+        colors.range().map(function (color) {
+          var d = colors.invertExtent(color);
+          if (d[0] === null) {
+            d[0] = legendX.domain()[0];
+          }
+          if (d[1] === null) {
+            d[1] = legendX.domain()[1];
+          }
+          return d;
+        })
+      )
+      .enter()
+      .append("rect")
+      .style("fill", function (d) {
+        return colors(d[0]);
+      })
+      .attr({
+        x: function (d) {
+          return legendX(d[0]);
+        },
+        y: 0,
+        width: function (d) {
+          return legendX(d[1]) - legendX(d[0]);
+        },
+        height: legendHeight,
+      });
+
+    legend.append("g").call(legendXAxis);
   })
   .catch((error) => {
     if (error) throw error;
   });
-
-function colorSelect(temp) {
-  let colors = [
-    "#4575b4",
-    "#74add1",
-    "#abd9e9",
-    "#e0f3f8",
-    "#ffffbf",
-    "#fee090",
-    "#fdae61",
-    "#f46d43",
-    "#d73027",
-  ];
-  if (temp < 3.9) return colors[0];
-  if (temp < 5.0) return colors[1];
-  if (temp < 6.1) return colors[2];
-  if (temp < 7.2) return colors[3];
-  if (temp < 8.3) return colors[4];
-  if (temp < 9.5) return colors[5];
-  if (temp < 10.6) return colors[6];
-  if (temp < 11.7) return colors[7];
-  if (temp > 11.7) return colors[8];
-}
