@@ -89,8 +89,8 @@ d3.json(
       .data(data.monthlyVariance, (d) => d.year + ":" + d.month)
       .enter()
       .append("rect")
-      .attr("data-month", (d) => d.month)
-      .attr("data-year", (d) => d.month)
+      .attr("data-month", (d) => d.month - 1)
+      .attr("data-year", (d) => d.year)
       .attr("data-temp", (d) => data.baseTemperature + d.variance)
       .attr("class", "cell")
       .attr("x", (d) => xAxis(d.year))
@@ -102,7 +102,8 @@ d3.json(
         d3.select("#tooltip")
           .style("opacity", 1)
           .style("top", yAxis(d.month) + 75 + "px")
-          .style("left", xAxis(d.year) + 50 + "px");
+          .style("left", xAxis(d.year) + 50 + "px")
+          .attr("data-year", d.year);
 
         d3.select("#tooltip-year").text(d.year);
         d3.select("#tooltip-month").text(d.month);
